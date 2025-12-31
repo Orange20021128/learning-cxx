@@ -5,7 +5,14 @@
 struct Fibonacci {
     int numbers[11];
     // TODO: 修改方法签名和实现，使测试通过
-    int get(int i) {
+    // 解释：
+    // 1) FIB 在 main 中被声明为 constexpr（也就是常量对象），因此只能调用 const 成员函数。
+    //    如果成员函数不是 const，不能在 const/constexpr 对象上调用。
+    // 2) 将函数标记为 constexpr 可以让它在编译期求值（当需要在常量表达式中使用时有用），
+    //    同时配合 const 满足对常量对象的调用要求。
+    // 3) 函数体简单返回数组元素，直接返回 numbers[i] 即可。
+    constexpr int get(int i) const {
+        return numbers[i];
     }
 };
 
