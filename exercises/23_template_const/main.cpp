@@ -10,7 +10,13 @@ struct Tensor {
 
     Tensor(unsigned int const shape_[N]) {
         unsigned int size = 1;
-        // TODO: 填入正确的 shape 并计算 size
+        // 将传入的 shape_ 复制到成员 shape 中，并计算总元素个数 size。
+        // 解释：shape 是每个维度的长度，总大小是各维度长度的乘积（张量元素总数）。
+        // 例如对于 shape = {2,3,4,5}，size = 2*3*4*5 = 120。
+        for (unsigned int i = 0; i < N; ++i) {
+            shape[i] = shape_[i]; // 复制每个维度
+            size *= shape[i];     // 计算总元素数（连乘）
+        }
         data = new T[size];
         std::memset(data, 0, size * sizeof(T));
     }
@@ -34,7 +40,11 @@ private:
         unsigned int index = 0;
         for (unsigned int i = 0; i < N; ++i) {
             ASSERT(indices[i] < shape[i], "Invalid index");
-            // TODO: 计算 index
+            // 计算扁平化（linearized）索引，采用 row-major（行主序）布局：
+            // 对于维度 (d0, d1, d2, ...)，线性索引为
+            // (((i0)*d1 + i1)*d2 + i2)*... + iN
+            // 迭代形式：index = index * shape[i] + indices[i]
+            index = index * shape[i] + indices[i];
         }
         return index;
     }

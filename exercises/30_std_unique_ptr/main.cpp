@@ -50,11 +50,21 @@ int main(int argc, char **argv) {
     // ---- 不要修改以上代码 ----
 
     std::vector<const char *> answers[]{
-        {"fd"},
-        // TODO: 分析 problems[1] 中资源的生命周期，将记录填入 `std::vector`
-        // NOTICE: 此题结果依赖对象析构逻辑，平台相关，提交时以 CI 实际运行平台为准
-        {"", "", "", "", "", "", "", ""},
-        {"", "", "", "", "", "", "", ""},
+        {"fd" /* reset(nullptr) -> new R; forward records 'f'; drop records 'd' and destroys -> "fd" */},
+        // 分析 problems[1] 中资源的生命周期：
+        // reset(nullptr) -> R1 (no 'r')
+        // forward(R1) records 'f' -> "f"
+        // forward(...) records another 'f' -> "ff"
+        // reset(...) sees ptr non-null, records 'r' on R1 -> "ffr", returns new R2, R1 destroyed -> push "ffr"
+        // drop(R2) records 'd' and destroys -> push "d"
+        {"ffr", "d"},
+        // 分析 problems[2] 中资源的生命周期：
+        // reset(nullptr) -> R1
+        // reset(R1) records 'r' on R1, returns R2, R1 destroyed -> push "r"
+        // drop(R2) records 'd' and destroys -> push "d"
+        // reset(nullptr) -> R3
+        // drop(R3) records 'd' and destroys -> push "d"
+        {"r", "d", "d"},
     };
 
     // ---- 不要修改以下代码 ----

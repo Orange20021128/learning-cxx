@@ -15,9 +15,30 @@ using udim = unsigned int;
 /// @return 张量每维度的访问步长
 std::vector<udim> strides(std::vector<udim> const &shape) {
     std::vector<udim> strides(shape.size());
-    // TODO: 完成函数体，根据张量形状计算张量连续存储时的步长。
-    // READ: 逆向迭代器 std::vector::rbegin <https://zh.cppreference.com/w/cpp/container/vector/rbegin>
-    //       使用逆向迭代器可能可以简化代码
+    // 解释（加入到注释中）：
+    // 逻辑：对于形状 [d0, d1, ..., d_{n-1}]，
+    //   stride[i] = product_{j = i+1 .. n-1} d_j
+    // 特别地，最后一维的 stride[n-1] = 1。
+    // 为了高效计算，可以从后向前遍历，用一个 running（后缀积）保存当前已乘过的维度积：
+    //   初始 running = 1
+    //   从后向前：stride[i] = running; running *= shape[i];
+    // 这样每个维度只参与一次乘法，时间复杂度 O(n)，空间复杂度 O(n)（返回的 strides）。
+    //
+    // 举例：shape = {2,3,4}
+    //   running=1 -> strides[2]=1, running*=4 -> running=4
+    //   strides[1]=4, running*=3 -> running=12
+    //   strides[0]=12
+    //
+    // 下面用逆向迭代器把思路直接写成代码。
+    udim running = 1;
+    // strides.rbegin() 与 shape.rbegin() 同步向前（其实是逻辑上的向后遍历）
+    auto it_s = strides.rbegin();
+    auto it_shape = shape.rbegin();
+    for (; it_s != strides.rend() && it_shape != shape.rend();
+         ++it_s, ++it_shape) {
+        *it_s = running;      // 当前维度的步长等于后缀积
+        running *= *it_shape; // 把当前维度大小累乘到后缀积，供更高维使用
+    }
     return strides;
 }
 

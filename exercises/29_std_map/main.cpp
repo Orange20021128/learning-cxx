@@ -6,12 +6,17 @@
 
 template<class k, class v>
 bool key_exists(std::map<k, v> const &map, k const &key) {
-    // TODO: 实现函数
+    // 使用 find 检查元素是否存在：find 在未找到时返回 map.end()，
+    // 与 operator[] 不同，find 不会在容器中创建新的元素，因此不会修改原始 map。
+    return map.find(key) != map.end();
 }
 
 template<class k, class v>
 void set(std::map<k, v> &map, k key, v value) {
-    // TODO: 实现函数
+    // 使用 operator[] 插入或更新元素：当 key 不存在时会创建新元素并赋值，
+    // 当 key 已存在时会覆盖原有的 value。这里使用 operator[] 语义简单直观；
+    // 如果想避免默认构造开销，可改用 map.insert_or_assign(key, std::move(value))（C++17 起）。
+    map[key] = std::move(value);
 }
 
 // ---- 不要修改以下代码 ----
